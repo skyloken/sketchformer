@@ -16,7 +16,7 @@ class TransformerMetricsMixin(object):
     def compute_predictions_on_set(self, set_type):
         # do reconstruction with smaller batch
         x, y = self.dataset.get_n_samples_from(
-            'valid', n=32, shuffled=True, seeded=True)
+            set_type, n=32, shuffled=True, seeded=True)
         pred_x, pred_y, pred_z = [], [], []
         for i in range(0, len(x), self.hps['batch_size']):
             end_idx = i + self.hps['batch_size'] if i + self.hps['batch_size'] < len(x) else len(x)

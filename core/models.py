@@ -25,7 +25,7 @@ class BaseModel(tf.keras.Model, metaclass=ABCMeta):
             autograph=True,  # use tf autograph or not (useful for debugging)
             log_every=100,  # print a log every n steps
             notify_every=1000,  # send a notification and compute slow metrics every n steps
-            slack_config='token.secret',  # file with slack setup (token and channel)
+            slack_config='',  # no default slack config
             goal='No description',  # describe what this is supposed to achieve
         )
         return base_hparams
@@ -61,6 +61,7 @@ class BaseModel(tf.keras.Model, metaclass=ABCMeta):
 
         # prepare both metric dictionaries
         self.quick_metrics = {q: QuickMetric() for q in self.quick_metrics}
+
         self.slow_metrics = {m: metrics.build_metric_by_name(m, self.hps)
                              for m in self.slow_metrics}
 
@@ -248,6 +249,7 @@ class BaseModel(tf.keras.Model, metaclass=ABCMeta):
 
     def compute_all_metrics(self):
         for m, metric in self.slow_metrics.items():
+            print(m)
             input_data = self.gather_data_for_metric(metric.input_type)
             metric.compute_in_parallel(input_data)
 
