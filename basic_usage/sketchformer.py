@@ -13,6 +13,7 @@ import utils
 import warnings
 from models.sketchformer import Transformer
 
+
 warnings.filterwarnings('ignore')
 
 class continuous_embeddings:
@@ -52,7 +53,7 @@ class continuous_embeddings:
         dataset = self._convert_data(sketches_x, sketches_y, is_training=True)
         Model = models.get_model_by_name(self.SKETCHFORMER_MODEL_NAME)
 
-        # update all slow metrics
+        # # update all slow metricss to none
         Transformer.slow_metrics = [] 
 
         self.model = Model(Model.default_hparams(), dataset, out_dir, model_id) 
@@ -179,3 +180,33 @@ class continuous_embeddings:
                 embeddings = results['embedding']
 
         return embeddings
+    
+
+    def get_re_construction(self, sketches):
+        """returns the embedding for the given sketches
+
+        Args:
+            sketches (array-like): N sketches in the stroke-3 format
+
+        Returns:
+            array-like: the embeddings for the given sketches
+        """
+        # prepare the dataset
+        dataset = self._convert_data(sketches)
+        all_x, all_y = dataset.get_all_data_from("test")
+        re_con = []
+
+        for i in range(0, len(all_x), self.BATCH_SIZE):
+            end_idx = i + self.BATCH_SIZE if i + self.BATCH_SIZE < len(all_x) else len(all_x)
+            batch_x = all_x[i:end_idx]
+            results = self.model.predict(batch_x)
+
+            re_con_out = results['recon']
+            tmp = utils.sketch.predictions_to_sketches(re_con_out)
+
+            if len(re_con) > 0:
+                re_con = np.concatenate((re_con, tmp))
+            else:
+                re_con = tmp
+
+        return re_con

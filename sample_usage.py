@@ -10,7 +10,11 @@ import time
 import warnings
 import random
 
-warnings.filterwarnings("ignore")
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
+# warnings.filterwarnings("ignore")
 
 
 class Basic_Test:
@@ -39,6 +43,14 @@ class Basic_Test:
         for _ in range(N_baseball):
             ind = random.randint(0, len(self.baseball['test']) - 1)
             baseball_sketch.append(self.baseball['test'][ind])
+        
+        re_con = model.get_re_construction(np.concatenate((apple_sketch, baseball_sketch)))
+        
+
+        # visulaizing the reconstruction of the sketches 
+        for sketch in re_con:
+            self.visualize(sketch)
+
 
         embeddings = model.get_embeddings(np.concatenate((apple_sketch, baseball_sketch)))
 
@@ -68,6 +80,35 @@ class Basic_Test:
             print("Predicted class for a Baseball sketch: ", pred_class[N_apple + i])
         # classify sample baseball sketch
 
+    def visualize(self, sketch):
+        X = []
+        Y = []
+
+        tmp_x, tmp_y = [], []
+        sx = sy = 0
+        for p in sketch:
+            sx += p[0]
+            sy += p[1]
+            if p[2] == 1:
+                X.append(tmp_x)
+                Y.append(tmp_y)
+                tmp_x, tmp_y = [], []
+            else:
+                tmp_x.append(sx)
+                tmp_y.append(-sy)
+
+        X.append(tmp_x)
+        Y.append(tmp_y)
+
+        for x, y in zip(X, Y):
+            plt.plot(x, y)
+
+        # save the image.
+        # plt.savefig("sample.png")
+
+        # show the plot
+        plt.show()
+
     def pre_trained_model_test(self):
         """peforme tests on the pretrained model
         """
@@ -82,7 +123,7 @@ class Basic_Test:
         print("Training a new model")
         MODEL_ID = "my_new_model"
         OUT_DIR = "basic_usage/pre_trained_model"
-        sketches_x = np.concatenate((self.apples['train'], self.baseball['train']))
+        sketches_x = np.concatenate((self.apples['train'][:300], self.baseball['train'][:300]))
         sketches_y = np.concatenate((np.zeros(len(self.apples['train'])), np.ones(len(self.baseball['train']))))
         new_model = continuous_embeddings(sketches_x, sketches_y, ['apple', 'baseball'], MODEL_ID, OUT_DIR, resume=False)
         self.performe_test(new_model)
