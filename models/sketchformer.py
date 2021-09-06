@@ -207,6 +207,7 @@ class Transformer(BaseModel, TransformerMetricsMixin):
         if self.hps['do_classification']:
             pred_labels = tf.cast(tf.argmax(out['class'], axis=-1), tf.int32)
             out['class'] = pred_labels
+        
         if self.hps['do_reconstruction']:
             if self.hps['blind_decoder_mask']:
                 tlen = None

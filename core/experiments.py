@@ -20,7 +20,7 @@ class Experiment(object, metaclass=ABCMeta):
     @classmethod
     def base_default_hparams(cls):
         base_hparams = utils.hparams.HParams(
-            slack_config='token.secret',  # file with slack setup (token and channel)
+            slack_config = '',  # no default slack config
         )
         return base_hparams
 
