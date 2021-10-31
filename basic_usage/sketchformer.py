@@ -5,24 +5,27 @@ Created on Oct 18 2020 15:05
 
 """
 
-import numpy as np
 import os
-import models
-import dataloaders
-import utils
 import warnings
+
+import dataloaders
+import models
+import numpy as np
+import utils
 from models.sketchformer import Transformer
 
-
 warnings.filterwarnings('ignore')
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
 
 class continuous_embeddings:
     """This class provides basic tools such as extract embeddings or classify a specific sketch.
     """
     SKETCHFORMER_MODEL_NAME = 'sketch-transformer-tf2'
     PRE_TRAINED_MODEL_ID = "cvpr_tform_cont"
-    PRE_TRAINED_OUT_DIR = "basic_usage/pre_trained_model"
-    TARGET_DIR = "basic_usage/tmp_data"
+    PRE_TRAINED_OUT_DIR = os.path.normpath(os.path.join(base_dir, "./pre_trained_model"))
+    TARGET_DIR = os.path.normpath(os.path.join(base_dir, "./tmp_data"))
     BATCH_SIZE = 256
     PRE_TRAINED_N_CLASSES = 345
 
@@ -47,7 +50,7 @@ class continuous_embeddings:
         # number of classes in a testing data.
         self.n_classes = len(class_labels)
         self.class_labels = class_labels
-        utils.gpu.setup_gpu(gpu_id)
+        utils.gpu.setup_gpu([gpu_id])
 
         # prepare the dataset
         dataset = self._convert_data(sketches_x, sketches_y, is_training=True)
@@ -77,7 +80,7 @@ class continuous_embeddings:
 
         # obtain labels
         labels = []
-        with open("basic_usage/pre_trained_labels.txt") as file:
+        with open(os.path.normpath(os.path.join(base_dir, "./pre_trained_labels.txt"))) as file:
             labels = file.read().split('\n')[:-1]
         
         return cls([], [], labels, cls.PRE_TRAINED_MODEL_ID, cls.PRE_TRAINED_OUT_DIR)
