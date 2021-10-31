@@ -21,3 +21,4 @@ bumblebee.submit_file
 docker/
 *.secret
 pretrained/
+tmp_data/
